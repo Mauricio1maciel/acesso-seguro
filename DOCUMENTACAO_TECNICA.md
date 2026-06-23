@@ -37,6 +37,10 @@ A aplicação adota a arquitetura **MVC (Model-View-Controller)** adaptada para 
 * **Middleware Pattern:**
   * *Onde foi utilizado:* [inertia.js](file:///C:/projetos/acesso-seguro-1/src/middleware/inertia.js).
   * *Por que foi utilizado:* Estende o pipeline de requisições HTTP do Express para injetar a renderização híbrida baseada nos headers (`X-Inertia`) de forma transparente e reutilizável.
+* **Data Transfer Object (DTO):**
+  * *Onde foi utilizado:* [MoradorDTO.js](file:///C:/projetos/acesso-seguro-1/src/dtos/MoradorDTO.js) e [VisitanteDTO.js](file:///C:/projetos/acesso-seguro-1/src/dtos/VisitanteDTO.js), utilizados pelos controladores [morador.controller.js](file:///C:/projetos/acesso-seguro-1/src/controllers/morador.controller.js) e [visitante.controller.js](file:///C:/projetos/acesso-seguro-1/src/controllers/visitante.controller.js).
+  * *O que faz:* Centraliza o tratamento e a padronização dos dados recebidos das requisições HTTP antes de serem processados pela regra de negócio e persistidos no banco de dados.
+  * *Por que foi utilizado:* Reduz o acoplamento entre as camadas da aplicação, elimina duplicação de código nos controladores e concentra regras de sanitização e transformação de dados em uma única responsabilidade, tornando a manutenção mais simples e segura.
 
 ---
 

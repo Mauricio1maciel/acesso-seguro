@@ -1,9 +1,14 @@
 import express from 'express';
 import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import jwt from 'jsonwebtoken';
 import { inertiaMiddleware } from './middleware/inertia.js';
 import sequelize from './config/database.js';
+import authRouter from './routers/auth.router.js';
 import visitanteRouter from './routers/visitante.router.js';
 import moradorRouter from './routers/morador.router.js';
+import { autenticar } from './middleware/auth.js';
+import UsuarioDataAccess from './data_access/usuario.da.js';
 import { initCleanupJob } from './jobs/cleanup.job.js';
 import 'dotenv/config';
 import fs from 'fs';
@@ -17,6 +22,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'unoesc_portaria_secret_key',
@@ -96,7 +102,25 @@ const htmlTemplate = (page) => {
 
 app.use(inertiaMiddleware(htmlTemplate));
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
+  req.user = null;
+  const token = req.cookies?.token;
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'acesso_seguro_jwt_secret_key_987!');
+      const usuario = await UsuarioDataAccess.getById(decoded.id);
+      if (usuario) {
+        req.user = {
+          id: usuario.id,
+          nome: usuario.nome,
+          email: usuario.email
+        };
+      }
+    } catch (err) {
+      res.clearCookie('token');
+    }
+  }
+
   const flash = req.session.flash || {};
   const errors = req.session.errors || {};
   req.session.flash = {};
@@ -107,14 +131,18 @@ app.use((req, res, next) => {
       success: flash.success || null,
       error: flash.error || null
     },
-    errors: errors
+    errors: errors,
+    auth: {
+      user: req.user
+    }
   });
 
   next();
 });
 
-app.use(visitanteRouter);
-app.use(moradorRouter);
+app.use(authRouter);
+app.use(autenticar, visitanteRouter);
+app.use(autenticar, moradorRouter);
 
 initCleanupJob();
 

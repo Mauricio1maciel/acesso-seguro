@@ -7,7 +7,8 @@ export default function Index({
   errors = {},
   showModalCadastro = false,
   showModalEdicao = false,
-  visitanteProp = null
+  visitanteProp = null,
+  auth = {}
 }) {
   const [abrirCadastro, setAbrirCadastro] = useState(showModalCadastro);
   const [abrirEdicao,   setAbrirEdicao]   = useState(showModalEdicao);
@@ -143,11 +144,22 @@ export default function Index({
           </div>
         </div>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-6 items-center">
           <a href="/" className="text-sm text-indigo-200 hover:text-white transition-colors">⬅ Voltar ao Menu</a>
           <div className="bg-white/10 px-4 py-1.5 rounded-full text-xs font-medium">
             {visitantes.length} visitante(s)
           </div>
+          {auth?.user && (
+            <div className="flex items-center gap-3 border-l border-white/20 pl-6 text-sm">
+              <span className="text-indigo-200">{auth.user.nome}</span>
+              <button 
+                onClick={() => router.post('/logout')}
+                className="bg-rose-600/30 hover:bg-rose-600/50 text-rose-200 hover:text-white px-2.5 py-1 rounded-lg text-xs transition-all font-medium border border-rose-500/20"
+              >
+                Sair
+              </button>
+            </div>
+          )}
         </div>
       </header>
 

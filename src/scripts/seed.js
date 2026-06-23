@@ -1,12 +1,14 @@
 import sequelize from '../config/database.js';
 import Morador from '../models/morador.model.js';
 import Visitante from '../models/visitante.model.js';
+import Usuario from '../models/usuario.model.js';
+import bcrypt from 'bcryptjs';
 import 'dotenv/config';
 
 const moradoresFicticios = [
   { nome: 'Ana Paula Silva', cpf: '111.111.111-11', telefone: '(11) 98888-1111', numero_casa: '101', placa_carro: 'ABC-1234' },
   { nome: 'Carlos Eduardo Mendes', cpf: '222.222.222-22', telefone: '(11) 98888-2222', numero_casa: '102', placa_carro: 'XYZ-9876' },
-  { nome: 'Beatriz Souza', cpf: '333.333.333-33', telefone: '(11) 98888-3333', numero_casa: '103', placa_carro: null },
+  { nome: 'Beatriz Souza', cpf: '333.333.333-33', telefone: '(11) 98888-3333', numero_casa: '103', placa_carro: '' },
   { nome: 'Fernando Alves', cpf: '444.444.444-44', telefone: '(11) 98888-4444', numero_casa: '104', placa_carro: 'DEF-5678' }
 ];
 
@@ -34,6 +36,20 @@ async function seedDatabase() {
       console.log('✅ Moradores fictícios inseridos com sucesso!');
     } else {
       console.log(`ℹ️ O banco já possui ${countMoradores} morador(es).`);
+    }
+
+    // Conta quantos usuários já existem
+    const countUsuarios = await Usuario.count();
+    if (countUsuarios === 0) {
+      const senhaHash = await bcrypt.hash('admin123', 10);
+      await Usuario.create({
+        nome: 'Administrador',
+        email: 'admin@acessoseguro.com',
+        senha: senhaHash
+      });
+      console.log('✅ Usuário administrativo padrão inserido com sucesso!');
+    } else {
+      console.log(`ℹ️ O banco já possui ${countUsuarios} usuário(s).`);
     }
 
     // Conta quantos visitantes já existem

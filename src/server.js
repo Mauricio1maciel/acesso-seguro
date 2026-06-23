@@ -6,8 +6,14 @@ import visitanteRouter from './routers/visitante.router.js';
 import moradorRouter from './routers/morador.router.js';
 import { initCleanupJob } from './jobs/cleanup.job.js';
 import 'dotenv/config';
-import fs from 'fs'; // <--- Importação necessária para ler a pasta dist
-import path from 'path'; // <--- Importação necessária para lidar com caminhos
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url'; 
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const distPath = path.resolve(__dirname, '../dist');
 
 const app = express();
 
@@ -20,17 +26,14 @@ app.use(session({
   saveUninitialized: true
 }));
 
-// Permite acesso aos arquivos finais (CSS, JS, imagens) gerados pelo build
-app.use(express.static('dist'));
+
+app.use(express.static(distPath));
 
 const htmlTemplate = (page) => {
-  // O Render define automaticamente a variável NODE_ENV como 'production'
   if (process.env.NODE_ENV === 'production') {
-    // Em produção, lê o HTML real gerado pelo Vite na pasta dist
-    let template = fs.readFileSync(path.resolve('dist', 'index.html'), 'utf-8');
+    let template = fs.readFileSync(path.resolve(distPath, 'index.html'), 'utf-8');
     const inertiaDiv = `<div id="app" data-page='${JSON.stringify(page)}'></div>`;
 
-    // Injeta a div do Inertia no lugar certo do HTML
     if (template.includes('<div id="root"></div>')) {
       return template.replace('<div id="root"></div>', inertiaDiv);
     } else if (template.includes('<div id="app"></div>')) {
@@ -40,7 +43,6 @@ const htmlTemplate = (page) => {
     }
   }
 
-  // Em desenvolvimento (sua máquina), continua usando o localhost do Vite
   return `
   <!DOCTYPE html>
   <html lang="pt-BR">
@@ -60,7 +62,7 @@ const htmlTemplate = (page) => {
         window.__vite_plugin_react_preamble_installed__ = true
       </script>
       <script type="module" src="http://localhost:5173/@vite/client"></script>
-      <script type="module" src="http://localhost:5173/app.jsx"></script>
+      <script type="module" src="http://localhost:5173/src/views/app.jsx"></script>
     </body>
   </html>
   `;

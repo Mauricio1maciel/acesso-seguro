@@ -48,7 +48,7 @@ for (const p of possiblePaths) {
 
 // Libera o acesso aos arquivos estáticos (CSS/JS)
 if (finalDistPath) {
-  app.use(express.static(finalDistPath));
+  app.use(express.static(finalDistPath, { index: false }));
 }
 
 const htmlTemplate = (page) => {

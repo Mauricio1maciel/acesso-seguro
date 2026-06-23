@@ -30,8 +30,7 @@ app.use(session({
   saveUninitialized: true
 }));
 
-// --- SISTEMA DE BUSCA AUTOMÁTICA DA PASTA DIST ---
-// Garante que o Express vai encontrar a tela gerada pelo Vite em qualquer ambiente!
+
 const possiblePaths = [
   path.join(process.cwd(), 'dist', 'index.html'),
   path.join(__dirname, '../dist', 'index.html'),
@@ -99,7 +98,8 @@ const htmlTemplate = (page) => {
   </html>
   `;
 };
-
+//<script type="module" src="http://localhost:5173/src/views/app.jsx"></script>
+// <script type="module" src="http://localhost:5173/app.jsx"></script>
 app.use(inertiaMiddleware(htmlTemplate));
 
 app.use(async (req, res, next) => {
